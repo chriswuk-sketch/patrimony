@@ -18,9 +18,10 @@ export default function ManageHpiModal({ residence, onClose, onSaved }) {
   const [tenure,         setTenure]         = useState(residence.tenure              ?? 'freehold')
   const [leaseYears,     setLeaseYears]     = useState(residence.leaseYearsRemaining ?? '')
   const [bedrooms,       setBedrooms]       = useState(residence.bedrooms            ?? 2)
-  const [deposit,        setDeposit]        = useState(residence.deposit             ?? '')
-  const [interestRate,   setInterestRate]   = useState(residence.interestRate        ?? '')
-  const [mortgageTerm,   setMortgageTerm]   = useState(residence.mortgageTerm        ?? 25)
+  const [deposit,            setDeposit]            = useState(residence.deposit             ?? '')
+  const [interestRate,       setInterestRate]       = useState(residence.interestRate        ?? '')
+  const [mortgageTerm,       setMortgageTerm]       = useState(residence.mortgageTerm        ?? 25)
+  const [growthRateOverride, setGrowthRateOverride] = useState(residence.growthRateOverride  ?? '')
   const [laQuery,        setLaQuery]        = useState(residence.localAuthority      ?? '')
   const [laOpen,         setLaOpen]         = useState(false)
   const [saving,         setSaving]         = useState(false)
@@ -66,6 +67,7 @@ export default function ManageHpiModal({ residence, onClose, onSaved }) {
             deposit:             deposit !== '' ? (Number(deposit) || null) : null,
             interestRate:        interestRate !== '' ? (Number(interestRate) || null) : null,
             mortgageTerm:        mortgageTerm !== '' ? (Number(mortgageTerm) || null) : null,
+            growthRateOverride:  growthRateOverride !== '' ? (Number(growthRateOverride) || null) : null,
           },
         }),
       })
@@ -246,6 +248,40 @@ export default function ManageHpiModal({ residence, onClose, onSaved }) {
           )}
 
           {/* Mortgage Details */}
+          {/* Growth rate override */}
+          <div className="border-t border-white/5 pt-5 space-y-2">
+            <div>
+              <p className="text-text-muted text-xs uppercase tracking-widest mb-0.5">House Price Growth Assumption</p>
+              <p className="text-text-muted text-xs opacity-60">Override the Land Registry trailing rate used in the projection</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="relative w-36">
+                <input
+                  type="number"
+                  value={growthRateOverride}
+                  onChange={(e) => setGrowthRateOverride(e.target.value)}
+                  placeholder="e.g. 3.5"
+                  className="input-field pr-6"
+                  min="-20"
+                  max="30"
+                  step="0.1"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted text-sm">%</span>
+              </div>
+              <p className="text-text-muted text-xs">
+                per year — leave blank to use the LR trailing rate
+              </p>
+            </div>
+            {growthRateOverride !== '' && (
+              <button
+                onClick={() => setGrowthRateOverride('')}
+                className="text-xs text-text-muted hover:text-gold transition-colors"
+              >
+                ✕ Clear override
+              </button>
+            )}
+          </div>
+
           <div className="border-t border-white/5 pt-5 space-y-3">
             <div>
               <p className="text-text-muted text-xs uppercase tracking-widest mb-0.5">Mortgage Details</p>

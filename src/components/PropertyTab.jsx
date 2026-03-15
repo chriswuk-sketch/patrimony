@@ -56,7 +56,7 @@ function writeCache(la, type, data) {
 
 // ── Chart data builders ───────────────────────────────────────────────────────
 
-function buildChartData(hpiData, purchasePrice, purchaseDate) {
+function buildChartData(hpiData, purchasePrice, purchaseDate, growthRateOverride) {
   if (!hpiData || hpiData.length < 6) return null
 
   const purchaseEntry = hpiData.find(d => d.month >= purchaseDate) ?? hpiData[0]
@@ -74,13 +74,18 @@ function buildChartData(hpiData, purchasePrice, purchaseDate) {
     sdBand:     undefined,
   }))
 
+  // Trailing 12-month annualised growth from HPI data
   const last13  = hpiData.slice(-Math.min(13, hpiData.length))
   const nMonths = last13.length - 1
-  const annualGrowth = nMonths > 0
+  const hpiAnnualGrowth = nMonths > 0
     ? Math.pow(last13[last13.length - 1].index / last13[0].index, 12 / nMonths) - 1
     : 0.03
+
+  // Use user override if set, otherwise use HPI trailing rate
+  const annualGrowth  = growthRateOverride != null ? growthRateOverride / 100 : hpiAnnualGrowth
   const monthlyGrowth = Math.pow(1 + annualGrowth, 1 / 12) - 1
 
+  // SD band always uses HPI historical volatility regardless of override
   const last37 = hpiData.slice(-Math.min(37, hpiData.length))
   const returns = []
   for (let i = 1; i < last37.length; i++) {
@@ -113,11 +118,13 @@ function buildChartData(hpiData, purchasePrice, purchaseDate) {
     chartData: [...historical, ...projection],
     stats: {
       purchasePrice,
-      currentValue:  latestValue,
+      currentValue:   latestValue,
       latestMonth,
-      gain:          latestValue - purchasePrice,
-      gainPct:       (latestValue - purchasePrice) / purchasePrice * 100,
-      annualGrowth:  annualGrowth * 100,
+      gain:           latestValue - purchasePrice,
+      gainPct:        (latestValue - purchasePrice) / purchasePrice * 100,
+      annualGrowth:   annualGrowth * 100,
+      hpiAnnualGrowth: hpiAnnualGrowth * 100,
+      usingOverride:  growthRateOverride != null,
     },
   }
 }
@@ -272,6 +279,7 @@ export default function PropertyTab({ wealth, onWealthUpdate }) {
     purchasePrice, purchaseDate, localAuthority, propertyType,
     tenure, leaseYearsRemaining, bedrooms,
     deposit, interestRate, mortgageTerm,
+    growthRateOverride,
   } = residence
 
   const isConfigured        = !!(purchasePrice && purchaseDate && localAuthority)
@@ -312,9 +320,12 @@ export default function PropertyTab({ wealth, onWealthUpdate }) {
 
   const result = useMemo(
     () => (hpiRaw && purchasePrice && purchaseDate)
-      ? buildChartData(hpiRaw, Number(purchasePrice), purchaseDate)
+      ? buildChartData(
+          hpiRaw, Number(purchasePrice), purchaseDate,
+          growthRateOverride != null ? Number(growthRateOverride) : null
+        )
       : null,
-    [hpiRaw, purchasePrice, purchaseDate]
+    [hpiRaw, purchasePrice, purchaseDate, growthRateOverride]
   )
 
   const mortgageSummary = useMemo(
@@ -532,9 +543,18 @@ export default function PropertyTab({ wealth, onWealthUpdate }) {
               {/* HPI value chart */}
               <div className="card">
                 <div className="flex items-center justify-between mb-4">
-                  <p className="text-text-muted text-xs uppercase tracking-widest">
-                    Estimated Value — {fmtMonth(purchaseDate)} to present + 12-month projection
-                  </p>
+                  <div>
+                    <p className="text-text-muted text-xs uppercase tracking-widest">
+                      Estimated Value — {fmtMonth(purchaseDate)} to present + 12-month projection
+                    </p>
+                    <p className="text-text-muted text-xs mt-0.5 opacity-60">
+                      Projection:{' '}
+                      {stats.usingOverride
+                        ? <span className="text-gold opacity-100">{stats.annualGrowth.toFixed(1)}%/yr (custom)</span>
+                        : <span>{stats.annualGrowth.toFixed(1)}%/yr (LR trailing 12-month)</span>
+                      }
+                    </p>
+                  </div>
                   <div className="flex items-center gap-4 text-xs text-text-muted">
                     <span className="flex items-center gap-1.5">
                       <span className="w-4 h-0.5 bg-gold inline-block rounded" />
@@ -686,7 +706,10 @@ export default function PropertyTab({ wealth, onWealthUpdate }) {
                 <div className="text-text-muted text-xs leading-relaxed space-y-1">
                   <p>
                     Estimated value = <span className="text-text-primary">purchase price × (HPI<sub>now</sub> / HPI<sub>purchase</sub>)</span> using the Land Registry House Price Index for <span className="text-text-primary">{localAuthority}</span>.
-                    The projection uses the trailing 12-month growth rate; the shaded band shows ±1 standard deviation based on 36 months of monthly returns.
+                    {stats.usingOverride
+                      ? <> The projection uses your custom rate of <span className="text-text-primary">{stats.annualGrowth.toFixed(1)}%/yr</span> (LR trailing rate is {stats.hpiAnnualGrowth.toFixed(1)}%/yr). The shaded band shows ±1 SD based on 36 months of historical LR volatility.</>
+                      : <> The projection uses the trailing 12-month LR growth rate of <span className="text-text-primary">{stats.annualGrowth.toFixed(1)}%/yr</span>; the shaded band shows ±1 SD based on 36 months of monthly returns. Override this in Settings.</>
+                    }
                   </p>
                   {isMortgageConfigured && (
                     <p>
