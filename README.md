@@ -25,40 +25,40 @@ A personal wealth dashboard built with Next.js. Track your net worth, investment
 
 1. Clone the repo
 
-bash
-git clone https://github.com/chriswuk-sketch/patrimony.git
-cd patrimony
+  bash
+  git clone https://github.com/chriswuk-sketch/patrimony.git
+  cd patrimony
 
 2. Install dependencies
 
 
-npm install
+  npm install
 
 3. Set up your data files
 
-Copy the example data files and edit them with your own figures:
-
-
-cp data/wealth.example.json data/wealth.json
-cp data/history.example.json data/history.json
-cp data/budget.example.json data/budget.json
+  Copy the example data files and edit them with your own figures:
+  
+  
+  cp data/wealth.example.json data/wealth.json
+  cp data/history.example.json data/history.json
+  cp data/budget.example.json data/budget.json
 
 4. Run the development server
 
 
-npm run dev
-Open http://localhost:3000 in your browser.
+  npm run dev
+  Open http://localhost:3000 in your browser.
 
-Data & Privacy
+## Data & Privacy
 All data is stored in the /data folder on your own machine. These files are excluded from git via .gitignore and will never be committed or pushed to GitHub. The app makes two external network requests:
 
 Yahoo Finance — to fetch live prices for holdings you configure (optional)
 Land Registry HPI SPARQL endpoint — to fetch house price index data for your local authority (optional, Property tab only)
 No personal data is transmitted anywhere else.
 
-Notes
-The Land Registry HPI endpoint can take up to 30 seconds to respond. Results are cached in localStorage for 24 hours.
-HPI data typically lags the current date by 2–3 months.
-Some smaller local authority districts may not have their own HPI data — try searching at county level instead
-Live prices require a valid ticker symbol (e.g. VWRP.L) or ISIN resolvable via Yahoo Finance.
+## Notes
+- The Land Registry HPI endpoint can take up to 30 seconds to respond. Results are cached in localStorage for 24 hours.
+- HPI data typically lags the current date by 2–3 months.
+- Some smaller local authority districts may not have their own HPI data — try searching at county level instead
+- Live prices require a valid ticker symbol (e.g. VWRP.L) or ISIN resolvable via Yahoo Finance.
 
