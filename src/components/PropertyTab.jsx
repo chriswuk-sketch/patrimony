@@ -56,7 +56,7 @@ function writeCache(la, type, data) {
 
 // ── Chart data builders ───────────────────────────────────────────────────────
 
-function buildChartData(hpiData, purchasePrice, purchaseDate, growthRateOverride) {
+function buildChartData(hpiData, purchasePrice, purchaseDate, growthRateOverride, applyOverrideToHistory) {
   if (!hpiData || hpiData.length < 6) return null
 
   const purchaseEntry = hpiData.find(d => d.month >= purchaseDate) ?? hpiData[0]
@@ -65,25 +65,31 @@ function buildChartData(hpiData, purchasePrice, purchaseDate, growthRateOverride
   const fromPurchase = hpiData.filter(d => d.month >= purchaseDate)
   if (fromPurchase.length < 2) return null
 
-  const historical = fromPurchase.map(d => ({
-    month:      d.month,
-    label:      fmtMonth(d.month),
-    value:      Math.round(purchasePrice * d.index / hpiBase),
-    projection: undefined,
-    projLow:    undefined,
-    sdBand:     undefined,
-  }))
-
-  // Trailing 12-month annualised growth from HPI data
+  // Compute growth rates first — needed for both history override and projection
   const last13  = hpiData.slice(-Math.min(13, hpiData.length))
   const nMonths = last13.length - 1
   const hpiAnnualGrowth = nMonths > 0
     ? Math.pow(last13[last13.length - 1].index / last13[0].index, 12 / nMonths) - 1
     : 0.03
 
-  // Use user override if set, otherwise use HPI trailing rate
   const annualGrowth  = growthRateOverride != null ? growthRateOverride / 100 : hpiAnnualGrowth
   const monthlyGrowth = Math.pow(1 + annualGrowth, 1 / 12) - 1
+
+  const [purchaseYear, purchaseMonth] = purchaseDate.split('-').map(Number)
+
+  const useOverrideHistory = growthRateOverride != null && applyOverrideToHistory
+
+  const historical = fromPurchase.map(d => {
+    let value
+    if (useOverrideHistory) {
+      const [dy, dm] = d.month.split('-').map(Number)
+      const monthsElapsed = (dy - purchaseYear) * 12 + (dm - purchaseMonth)
+      value = Math.round(purchasePrice * Math.pow(1 + monthlyGrowth, monthsElapsed))
+    } else {
+      value = Math.round(purchasePrice * d.index / hpiBase)
+    }
+    return { month: d.month, label: fmtMonth(d.month), value, projection: undefined, projLow: undefined, sdBand: undefined }
+  })
 
   // SD band always uses HPI historical volatility regardless of override
   const last37 = hpiData.slice(-Math.min(37, hpiData.length))
@@ -96,7 +102,9 @@ function buildChartData(hpiData, purchasePrice, purchaseDate, growthRateOverride
   const monthlySD = Math.sqrt(Math.max(variance, 0))
 
   const latestEntry = fromPurchase[fromPurchase.length - 1]
-  const latestValue = Math.round(purchasePrice * latestEntry.index / hpiBase)
+  const latestValue = useOverrideHistory
+    ? historical[historical.length - 1].value
+    : Math.round(purchasePrice * latestEntry.index / hpiBase)
   const latestMonth = latestEntry.month
 
   const projection = []
@@ -286,11 +294,12 @@ export default function PropertyTab({ wealth, onWealthUpdate }) {
   const isMortgageConfigured = !!(deposit && interestRate && mortgageTerm)
   const bedroomsLabel       = bedrooms ? `${bedrooms >= 4 ? '4+' : bedrooms} bed` : null
 
-  const [hpiRaw,       setHpiRaw]       = useState(null)
-  const [loading,      setLoading]      = useState(false)
-  const [fetchError,   setFetchError]   = useState(null)
-  const [usedFallback, setUsedFallback] = useState(false)
-  const [showSettings, setShowSettings] = useState(false)
+  const [hpiRaw,                setHpiRaw]                = useState(null)
+  const [loading,               setLoading]               = useState(false)
+  const [fetchError,            setFetchError]            = useState(null)
+  const [usedFallback,          setUsedFallback]          = useState(false)
+  const [showSettings,          setShowSettings]          = useState(false)
+  const [applyOverrideToHistory, setApplyOverrideToHistory] = useState(false)
 
   const fetchHpi = useCallback(async () => {
     if (!isConfigured) return
@@ -322,10 +331,11 @@ export default function PropertyTab({ wealth, onWealthUpdate }) {
     () => (hpiRaw && purchasePrice && purchaseDate)
       ? buildChartData(
           hpiRaw, Number(purchasePrice), purchaseDate,
-          growthRateOverride != null ? Number(growthRateOverride) : null
+          growthRateOverride != null ? Number(growthRateOverride) : null,
+          applyOverrideToHistory
         )
       : null,
-    [hpiRaw, purchasePrice, purchaseDate, growthRateOverride]
+    [hpiRaw, purchasePrice, purchaseDate, growthRateOverride, applyOverrideToHistory]
   )
 
   const mortgageSummary = useMemo(
@@ -555,7 +565,7 @@ export default function PropertyTab({ wealth, onWealthUpdate }) {
                       }
                     </p>
                   </div>
-                  <div className="flex items-center gap-4 text-xs text-text-muted">
+                  <div className="flex items-center gap-3 text-xs text-text-muted">
                     <span className="flex items-center gap-1.5">
                       <span className="w-4 h-0.5 bg-gold inline-block rounded" />
                       Historical
@@ -564,6 +574,18 @@ export default function PropertyTab({ wealth, onWealthUpdate }) {
                       <span className="w-4 h-0.5 inline-block rounded opacity-60" style={{ borderTop: '1.5px dashed #c9a84c' }} />
                       Projection
                     </span>
+                    {stats.usingOverride && (
+                      <button
+                        onClick={() => setApplyOverrideToHistory(v => !v)}
+                        className={`px-2 py-1 rounded border transition-colors ${
+                          applyOverrideToHistory
+                            ? 'border-gold text-gold bg-gold/5'
+                            : 'border-white/10 text-text-muted hover:border-white/20'
+                        }`}
+                      >
+                        Apply to history
+                      </button>
+                    )}
                   </div>
                 </div>
 
