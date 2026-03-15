@@ -23,18 +23,18 @@ A personal wealth dashboard built with Next.js. Track your net worth, investment
 
 ## Getting Started
 
-**1. Clone the repo**
+1. Clone the repo
 
 ```bash
 git clone https://github.com/chriswuk-sketch/patrimony.git
 cd patrimony
 
-**2. Install dependencies**
+2. Install dependencies
 
 
 npm install
 
-**3. Set up your data files**
+3. Set up your data files
 
 Copy the example data files and edit them with your own figures:
 
@@ -42,7 +42,8 @@ Copy the example data files and edit them with your own figures:
 cp data/wealth.example.json data/wealth.json
 cp data/history.example.json data/history.json
 cp data/budget.example.json data/budget.json
-**4. Run the development server**
+
+4. Run the development server
 
 
 npm run dev
