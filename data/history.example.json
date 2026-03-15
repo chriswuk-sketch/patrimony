@@ -1,0 +1,14 @@
+[
+  { "date": "Jan 2024", "netWorth": 195000, "cash": 25000, "pensions": 40000, "investments": 30000, "property": 100000 },
+  { "date": "Feb 2024", "netWorth": 198000, "cash": 25500, "pensions": 40800, "investments": 31200, "property": 100500 },
+  { "date": "Mar 2024", "netWorth": 201000, "cash": 26000, "pensions": 41500, "investments": 32000, "property": 101500 },
+  { "date": "Apr 2024", "netWorth": 205000, "cash": 26500, "pensions": 42000, "investments": 33000, "property": 103500 },
+  { "date": "May 2024", "netWorth": 208000, "cash": 27000, "pensions": 42800, "investments": 33700, "property": 104500 },
+  { "date": "Jun 2024", "netWorth": 212000, "cash": 27500, "pensions": 43500, "investments": 34500, "property": 106500 },
+  { "date": "Jul 2024", "netWorth": 215000, "cash": 28000, "pensions": 44000, "investments": 35000, "property": 108000 },
+  { "date": "Aug 2024", "netWorth": 219000, "cash": 28500, "pensions": 44800, "investments": 36000, "property": 109700 },
+  { "date": "Sep 2024", "netWorth": 222000, "cash": 29000, "pensions": 45500, "investments": 36800, "property": 110700 },
+  { "date": "Oct 2024", "netWorth": 226000, "cash": 29500, "pensions": 46200, "investments": 37800, "property": 112500 },
+  { "date": "Nov 2024", "netWorth": 229000, "cash": 30000, "pensions": 47000, "investments": 38500, "property": 113500 },
+  { "date": "Dec 2024", "netWorth": 233000, "cash": 30500, "pensions": 47800, "investments": 39500, "property": 115200 }
+]

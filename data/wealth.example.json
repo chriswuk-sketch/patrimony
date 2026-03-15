@@ -1,0 +1,70 @@
+{
+  "lastUpdated": "2025-01-01",
+  "cash": {
+    "accounts": [
+      {
+        "id": "savings-1",
+        "institution": "Savings Account",
+        "type": "Savings",
+        "value": 25000,
+        "interestRate": 4.5
+      },
+      {
+        "id": "current-1",
+        "institution": "Current Account",
+        "type": "Current",
+        "value": 3000,
+        "interestRate": null
+      }
+    ]
+  },
+  "isa": {
+    "holdings": [
+      {
+        "id": "isa-1",
+        "institution": "Vanguard",
+        "name": "Vanguard FTSE Global All Cap",
+        "symbol": "VWRP.L",
+        "units": 100,
+        "value": 45000
+      }
+    ]
+  },
+  "property": {
+    "primaryResidence": {
+      "institution": "Primary Home",
+      "address": "London, UK",
+      "estimatedValue": 350000,
+      "mortgageBalance": 200000,
+      "purchasePrice": 300000,
+      "purchaseDate": "2019-06",
+      "localAuthority": "Wandsworth",
+      "propertyType": "flat",
+      "tenure": "leasehold",
+      "leaseYearsRemaining": 125,
+      "bedrooms": 2,
+      "deposit": 60000,
+      "interestRate": 4.0,
+      "mortgageTerm": 25
+    }
+  },
+  "pension": {
+    "holdings": [
+      {
+        "id": "sipp-1",
+        "institution": "Vanguard SIPP",
+        "name": "Vanguard FTSE Global All Cap",
+        "symbol": "VWRP.L",
+        "units": 200,
+        "value": 50000
+      }
+    ]
+  },
+  "liabilities": {
+    "mortgage": {
+      "institution": "Halifax",
+      "balance": 200000,
+      "monthlyPayment": 1050
+    }
+  }
+}

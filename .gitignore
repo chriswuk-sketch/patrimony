@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Your personal financial data — keep this off GitHub
+data/wealth.json
+data/history.json
+data/budget.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/

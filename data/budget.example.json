@@ -1,0 +1,12 @@
+{
+  "netIncome": 4000,
+  "split": { "coreExpenses": 50, "savings": 20, "freeExpenditure": 30 },
+  "coreExpenses": [
+    { "id": "1", "name": "Housing", "amount": 900 },
+    { "id": "2", "name": "Utilities", "amount": 120 },
+    { "id": "3", "name": "Groceries", "amount": 300 },
+    { "id": "4", "name": "Transport", "amount": 150 },
+    { "id": "5", "name": "Insurance", "amount": 80 },
+    { "id": "6", "name": "Phone", "amount": 40 }
+  ]
+}

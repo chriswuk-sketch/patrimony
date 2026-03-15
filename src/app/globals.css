@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --gold: #c9a84c;
+  --gold-light: #e8c97a;
+  --bg-dark: #070b14;
+  --card-dark: #0d1420;
+  --text-primary: #e8e2d9;
+  --text-muted: #8a8070;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0d1420;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a3040;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #c9a84c44;
+}
+
+@layer components {
+  .card {
+    @apply bg-card-dark border border-card-border rounded-xl p-5;
+  }
+
+  .card-sm {
+    @apply bg-card-dark border border-card-border rounded-lg p-4;
+  }
+
+  .gold-text {
+    @apply text-gold font-playfair;
+  }
+
+  .tab-btn {
+    @apply px-5 py-2 text-sm font-medium rounded-lg transition-all duration-200 font-dm;
+  }
+
+  .tab-btn-active {
+    @apply tab-btn bg-gold text-bg-dark;
+  }
+
+  .tab-btn-inactive {
+    @apply tab-btn text-text-muted hover:text-text-primary hover:bg-white/5;
+  }
+
+  .input-field {
+    @apply w-full bg-bg-dark border border-white/10 rounded-lg px-3 py-2 text-text-primary text-sm focus:outline-none focus:border-gold/50 transition-colors;
+  }
+
+  .label {
+    @apply block text-xs text-text-muted mb-1 uppercase tracking-wide;
+  }
+}
+
+/* Range slider styling */
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type='range']::-webkit-slider-track {
+  background: #1a2030;
+  height: 4px;
+  border-radius: 2px;
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #c9a84c;
+  border: 2px solid #070b14;
+  margin-top: -6px;
+}
+
+input[type='range']::-moz-range-track {
+  background: #1a2030;
+  height: 4px;
+  border-radius: 2px;
+}
+
+input[type='range']::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #c9a84c;
+  border: 2px solid #070b14;
+}
+
+/* Modal overlay */
+.modal-backdrop {
+  background: rgba(7, 11, 20, 0.85);
+  backdrop-filter: blur(4px);
+}

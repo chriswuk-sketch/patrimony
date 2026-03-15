@@ -1,0 +1,11 @@
+{
+  "updatedDate": "2026-03",
+  "forecasts": [
+    { "source": "OBR",        "rate": 2.4, "url": "https://obr.uk/efo/economic-and-fiscal-outlook-march-2026/" },
+    { "source": "Nationwide", "rate": 3.0, "url": "https://www.nationwide.co.uk/house-price-index" },
+    { "source": "Halifax",    "rate": 2.0, "url": "https://www.halifax.co.uk/media-centre/house-price-index.html" },
+    { "source": "Rightmove",  "rate": 2.0, "url": "https://www.rightmove.co.uk/news/articles/property-news/2026-uk-house-price-predictions/" },
+    { "source": "Zoopla",     "rate": 1.5, "url": "https://www.zoopla.co.uk/discover/property-news/house-price-index/" },
+    { "source": "Savills",    "rate": 2.0, "url": "https://www.savills.co.uk/research_articles/229130/382244-0" }
+  ]
+}
