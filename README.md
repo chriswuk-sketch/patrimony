@@ -25,7 +25,7 @@ A personal wealth dashboard built with Next.js. Track your net worth, investment
 
 1. Clone the repo
 
-```bash
+bash
 git clone https://github.com/chriswuk-sketch/patrimony.git
 cd patrimony
 
