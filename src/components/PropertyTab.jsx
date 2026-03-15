@@ -137,7 +137,7 @@ function buildChartData(hpiData, purchasePrice, purchaseDate, growthRateOverride
   }
 }
 
-function buildEquityData(hpiData, purchasePrice, purchaseDate, deposit, interestRate, mortgageTerm) {
+function buildEquityData(hpiData, purchasePrice, purchaseDate, deposit, interestRate, mortgageTerm, growthRateOverride) {
   if (!hpiData || deposit == null || !interestRate || !mortgageTerm) return null
   const loanAmount = purchasePrice - deposit
   if (loanAmount <= 0) return null
@@ -152,6 +152,12 @@ function buildEquityData(hpiData, purchasePrice, purchaseDate, deposit, interest
   const hpiBase = purchaseEntry.index
   const fromPurchase = hpiData.filter(d => d.month >= purchaseDate)
 
+  const [purchaseYear, purchaseMonth] = purchaseDate.split('-').map(Number)
+  const useOverride = growthRateOverride != null
+  const monthlyGrowth = useOverride
+    ? Math.pow(1 + growthRateOverride / 100, 1 / 12) - 1
+    : null
+
   const equityData = fromPurchase.map((d, i) => {
     let balance
     if (monthlyRate === 0) {
@@ -162,7 +168,14 @@ function buildEquityData(hpiData, purchasePrice, purchaseDate, deposit, interest
       balance = Math.max(0, balance)
     }
     const capitalRepaid  = Math.round(loanAmount - balance)
-    const estimatedValue = Math.round(purchasePrice * d.index / hpiBase)
+    let estimatedValue
+    if (useOverride) {
+      const [dy, dm] = d.month.split('-').map(Number)
+      const monthsElapsed = (dy - purchaseYear) * 12 + (dm - purchaseMonth)
+      estimatedValue = Math.round(purchasePrice * Math.pow(1 + monthlyGrowth, monthsElapsed))
+    } else {
+      estimatedValue = Math.round(purchasePrice * d.index / hpiBase)
+    }
     const priceChange    = estimatedValue - purchasePrice
 
     return {
@@ -353,10 +366,11 @@ export default function PropertyTab({ wealth, onWealthUpdate }) {
       ? buildEquityData(
           hpiRaw,
           Number(purchasePrice), purchaseDate,
-          Number(deposit), Number(interestRate), Number(mortgageTerm)
+          Number(deposit), Number(interestRate), Number(mortgageTerm),
+          growthRateOverride != null ? Number(growthRateOverride) : null
         )
       : null,
-    [hpiRaw, purchasePrice, purchaseDate, deposit, interestRate, mortgageTerm, isMortgageConfigured]
+    [hpiRaw, purchasePrice, purchaseDate, deposit, interestRate, mortgageTerm, isMortgageConfigured, growthRateOverride]
   )
 
   // ── Leasehold warning ─────────────────────────────────────────────────────
@@ -654,7 +668,7 @@ export default function PropertyTab({ wealth, onWealthUpdate }) {
                       <p className={`font-playfair text-2xl font-bold ${equityResult.equityStats.priceChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                         {equityResult.equityStats.priceChange >= 0 ? '+' : '−'}{fmt(equityResult.equityStats.priceChange)}
                       </p>
-                      <p className="text-text-muted text-xs mt-1">HPI-based appreciation</p>
+                      <p className="text-text-muted text-xs mt-1">{stats.usingOverride ? 'custom rate appreciation' : 'HPI-based appreciation'}</p>
                     </div>
                     <div className="card text-center">
                       <p className="text-text-muted text-xs uppercase tracking-widest mb-1">Total Equity</p>
@@ -753,8 +767,12 @@ export default function PropertyTab({ wealth, onWealthUpdate }) {
           residence={residence}
           onClose={() => setShowSettings(false)}
           onSaved={(updated) => {
+            const newRes = updated?.property?.primaryResidence ?? {}
+            // Only clear cached HPI data if the local authority or property type changed
+            if (newRes.localAuthority !== localAuthority || newRes.propertyType !== propertyType) {
+              setHpiRaw(null)
+            }
             onWealthUpdate?.(updated)
-            setHpiRaw(null)
             setShowSettings(false)
           }}
         />
